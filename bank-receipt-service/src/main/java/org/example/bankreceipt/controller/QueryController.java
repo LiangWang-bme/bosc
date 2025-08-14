@@ -17,10 +17,10 @@ public class QueryController {
     @Autowired
     private ReceiptService receiptService;
 
-    @GetMapping("/transaction/{transactionId}")
-    public ResponseEntity<List<BankReceipt>> getByTransactionId(@PathVariable String transactionId) {
-        return ResponseEntity.ok(receiptService.getReceiptsByTransactionId(transactionId));
-    }
+//    @GetMapping("/transaction/{transactionId}")
+//    public ResponseEntity<List<BankReceipt>> getByTransactionId(@PathVariable String transactionId) {
+//        return ResponseEntity.ok(receiptService.getReceiptsByTransactionId(transactionId));
+//    }
 
     @GetMapping("/payer/{payerName}")
     public ResponseEntity<List<BankReceipt>> getByPayerName(@PathVariable String payerName) {

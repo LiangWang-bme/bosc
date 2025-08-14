@@ -415,7 +415,7 @@
 
     <script>
         // ===== API配置 - 根据你的SpringBoot项目修改此处 =====
-        const API_BASE_URL = 'http://localhost:8080/api'; // 修改为你的后端地址
+        const API_BASE_URL = 'http://localhost:8082/api'; // 修改为你的后端地址
 
         // 全局变量
         let receiptData = [];
@@ -438,7 +438,7 @@
         // 加载回单文件列表
         function loadReceiptFiles() {
             $.ajax({
-                url: `${API_BASE_URL}/receipts/list`,
+                url: `${API_BASE_URL}/receipts/local-list`,
                 type: 'GET',
                 success: function(response) {
                     if (response.success) {

@@ -6,10 +6,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ReceiptRepository extends JpaRepository<BankReceipt, Long> {
-    List<BankReceipt> findByTransactionId(String transactionId);
+
+    Optional<BankReceipt> findByFileName(String fileName);
+    Optional<BankReceipt> findByTransactionId(String transactionId);
+
     List<BankReceipt> findByPayerNameContaining(String payerName);
     List<BankReceipt> findByReceiverNameContaining(String receiverName);
     List<BankReceipt> findByTransactionDateBetween(Date startDate, Date endDate);

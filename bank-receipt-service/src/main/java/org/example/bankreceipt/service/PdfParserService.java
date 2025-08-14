@@ -20,8 +20,18 @@ import java.util.regex.Pattern;
 public class PdfParserService {
 
     public BankReceipt parsePdfToReceipt(String filePath) throws IOException {
+//        Map<String, String> extractedFields = parseBankReceipt(filePath);
+//        return mapToBankReceipt(extractedFields);
+
         Map<String, String> extractedFields = parseBankReceipt(filePath);
-        return mapToBankReceipt(extractedFields);
+        BankReceipt receipt = mapToBankReceipt(extractedFields);
+
+        // 确保文件名被设置
+        if (receipt.getFileName() == null) {
+            receipt.setFileName(new File(filePath).getName());
+        }
+
+        return receipt;
     }
 
     public Map<String, String> parseBankReceipt(String pdfFilePath) throws IOException {

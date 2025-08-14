@@ -13,6 +13,10 @@ public class BankReceipt {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String fileName;
+    private Long fileSize;
+    private String status; // PENDING/PARSED
+
     @Column(name = "transaction_date")
     private Date transactionDate;
 
