@@ -334,464 +334,476 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 页面标题 -->
-        <div class="header">
-            <h1>银行回单PDF解析系统</h1>
-            <p>银行回单PDF自动解析并与明细数据进行匹配分析</p>
-        </div>
-
-        <!-- 回单列表 -->
-        <div class="table-section">
-            <h2 class="section-title">回单列表</h2>
-            <table class="data-table" id="receiptTable">
-                <thead>
-                    <tr>
-                        <th>回单文件名</th>
-                        <th>银行名称</th>
-                        <th>解析状态</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody id="receiptTableBody">
-                    <tr>
-                        <td colspan="4" class="loading">
-                            <div class="loading-spinner"></div>
-                            正在加载回单文件列表...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <!-- 分页控件 -->
-            <div class="pagination" id="receiptPagination"></div>
-        </div>
-
-        <!-- 明细匹配结果 -->
-        <div class="table-section">
-            <h2 class="section-title">明细匹配结果</h2>
-            <table class="data-table" id="matchTable">
-                <thead>
-                    <tr>
-                        <th>明细单号</th>
-                        <th>匹配状态</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody id="matchTableBody">
-                    <tr>
-                        <td colspan="3" class="loading">
-                            <div class="loading-spinner"></div>
-                            正在加载明细数据...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <!-- 分页控件 -->
-            <div class="pagination" id="matchPagination"></div>
-        </div>
+<div class="container">
+    <!-- 页面标题 -->
+    <div class="header">
+        <h1>银行回单PDF解析系统</h1>
+        <p>银行回单PDF自动解析并与明细数据进行匹配分析</p>
     </div>
 
-    <!-- 回单详情模态框 -->
-    <div id="receiptModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="close" onclick="closeModal('receiptModal')">&times;</span>
-                <h3 class="modal-title">回单详情</h3>
-            </div>
-            <div id="receiptDetails"></div>
-        </div>
+    <!-- 回单列表 -->
+    <div class="table-section">
+        <h2 class="section-title">回单列表</h2>
+        <table class="data-table" id="receiptTable">
+            <thead>
+            <tr>
+                <th>回单文件名</th>
+                <th>银行名称</th>
+                <th>解析状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="receiptTableBody">
+            <tr>
+                <td colspan="4" class="loading">
+                    <div class="loading-spinner"></div>
+                    正在加载回单文件列表...
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <!-- 分页控件 -->
+        <div class="pagination" id="receiptPagination"></div>
     </div>
 
-    <!-- 明细详情模态框 -->
-    <div id="detailModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="close" onclick="closeModal('detailModal')">&times;</span>
-                <h3 class="modal-title">明细详情</h3>
-            </div>
-            <div id="detailDetails"></div>
-        </div>
+    <!-- 明细匹配结果 -->
+    <div class="table-section">
+        <h2 class="section-title">明细匹配结果</h2>
+        <table class="data-table" id="matchTable">
+            <thead>
+            <tr>
+                <th>明细单号</th>
+                <th>匹配状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="matchTableBody">
+            <tr>
+                <td colspan="3" class="loading">
+                    <div class="loading-spinner"></div>
+                    正在加载明细数据...
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <!-- 分页控件 -->
+        <div class="pagination" id="matchPagination"></div>
     </div>
+</div>
 
-    <script>
-        // ===== API配置 - 根据你的SpringBoot项目修改此处 =====
-        const API_BASE_URL = 'http://localhost:8082/api'; // 修改为你的后端地址
+<!-- 回单详情模态框 -->
+<div id="receiptModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close" onclick="closeModal('receiptModal')">&times;</span>
+            <h3 class="modal-title">回单详情</h3>
+        </div>
+        <div id="receiptDetails"></div>
+    </div>
+</div>
 
-        // 全局变量
-        let receiptData = [];
-        let matchData = [];
-        let receiptCurrentPage = 1;
-        let matchCurrentPage = 1;
-        const pageSize = 6;
+<!-- 明细详情模态框 -->
+<div id="detailModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close" onclick="closeModal('detailModal')">&times;</span>
+            <h3 class="modal-title">明细详情</h3>
+        </div>
+        <div id="detailDetails"></div>
+    </div>
+</div>
 
-        $(document).ready(function() {
-            // 页面加载时初始化数据
-            loadInitialData();
+<script>
+    // ===== API配置 - 根据你的SpringBoot项目修改此处 =====
+    const API_BASE_URL = 'http://localhost:8082/api'; // 修改为你的后端地址
+
+    // 全局变量
+    let receiptData = [];
+    let matchData = [];
+    let receiptCurrentPage = 1;
+    let matchCurrentPage = 1;
+    const pageSize = 6;
+
+    $(document).ready(function() {
+        // 页面加载时初始化数据
+        loadInitialData();
+    });
+
+    // 初始化加载数据
+    function loadInitialData() {
+        loadReceiptFiles();
+        loadMatchDetails();
+    }
+
+    // 加载回单文件列表
+    function loadReceiptFiles() {
+        $.ajax({
+            url: `${API_BASE_URL}/receipts/local-list`,
+            type: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    receiptData = response.data;
+                    updateReceiptTable();
+                } else {
+                    showError('加载回单文件失败：' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('加载回单文件失败:', error);
+                showError('加载回单文件失败，请检查网络连接');
+            }
         });
+    }
 
-        // 初始化加载数据
-        function loadInitialData() {
-            loadReceiptFiles();
-            loadMatchDetails();
-        }
-
-        // 加载回单文件列表
-        function loadReceiptFiles() {
-            $.ajax({
-                url: `${API_BASE_URL}/receipts/local-list`,
-                type: 'GET',
-                success: function(response) {
-                    if (response.success) {
-                        receiptData = response.data;
-                        updateReceiptTable();
-                    } else {
-                        showError('加载回单文件失败：' + response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('加载回单文件失败:', error);
-                    showError('加载回单文件失败，请检查网络连接');
-                }
-            });
-        }
-
-        // 加载明细数据
-        function loadMatchDetails() {
-            $.ajax({
-                url: `${API_BASE_URL}/details/list`,
-                type: 'GET',
-                success: function(response) {
-                    if (response.success) {
-                        matchData = response.data;
-                        updateMatchTable();
-                    } else {
-                        showError('加载明细数据失败：' + response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('加载明细数据失败:', error);
-                    showError('加载明细数据失败，请检查网络连接');
-                }
-            });
-        }
-
-        // 更新回单表格
-        function updateReceiptTable() {
-            const startIndex = (receiptCurrentPage - 1) * pageSize;
-            const endIndex = startIndex + pageSize;
-            const pageData = receiptData.slice(startIndex, endIndex);
-
-            let tableHtml = '';
-            if (pageData.length === 0) {
-                tableHtml = '<tr><td colspan="4" class="loading">暂无回单文件</td></tr>';
-            } else {
-                pageData.forEach(function(item) {
-                    const statusClass = item.status === 'PARSED' ? 'status-success' : 'status-pending';
-                    const statusText = item.status === 'PARSED' ? '解析成功' : '待解析';
-                    const actionBtn = item.status === 'PARSED' 
-                        ? `<button class="btn btn-info" onclick="viewReceipt('${item.fileName}')">查看回单</button>`
-                        : `<button class="btn btn-success" onclick="parseReceipt('${item.fileName}')">解析</button>`;
-
-                    tableHtml += `
-                        <tr data-file-name="${item.fileName}">
-                            <td>${item.fileName}</td>
-                            <td><span class="bank-tag">${item.bankName || '未知银行'}</span></td>
-                            <td><span class="status ${statusClass}">${statusText}</span></td>
-                            <td>${actionBtn}</td>
-                        </tr>
-                    `;
-                });
-            }
-
-            $('#receiptTableBody').html(tableHtml);
-            updateReceiptPagination();
-        }
-
-        // 更新明细表格
-        function updateMatchTable() {
-            const startIndex = (matchCurrentPage - 1) * pageSize;
-            const endIndex = startIndex + pageSize;
-            const pageData = matchData.slice(startIndex, endIndex);
-
-            let tableHtml = '';
-            if (pageData.length === 0) {
-                tableHtml = '<tr><td colspan="3" class="loading">暂无明细数据</td></tr>';
-            } else {
-                pageData.forEach(function(item) {
-                    const statusClass = item.status === 'MATCHED' ? 'status-matched' : 'status-unmatched';
-                    const statusText = item.status === 'MATCHED' ? '已匹配' : '未匹配';
-                    const actionBtn = item.status === 'MATCHED' 
-                        ? `<button class="btn btn-info" onclick="viewDetail('${item.detailNo}')">查看详情</button>`
-                        : `<button class="btn btn-primary" onclick="manualMatch('${item.detailNo}')">手动匹配</button>`;
-
-                    tableHtml += `
-                        <tr data-detail-no="${item.detailNo}">
-                            <td>${item.detailNo}</td>
-                            <td><span class="status ${statusClass}">${statusText}</span></td>
-                            <td>${actionBtn}</td>
-                        </tr>
-                    `;
-                });
-            }
-
-            $('#matchTableBody').html(tableHtml);
-            updateMatchPagination();
-        }
-
-        // 更新回单分页
-        function updateReceiptPagination() {
-            const totalPages = Math.ceil(receiptData.length / pageSize);
-            updatePagination('receiptPagination', receiptCurrentPage, totalPages, function(page) {
-                receiptCurrentPage = page;
-                updateReceiptTable();
-            });
-        }
-
-        // 更新明细分页
-        function updateMatchPagination() {
-            const totalPages = Math.ceil(matchData.length / pageSize);
-            updatePagination('matchPagination', matchCurrentPage, totalPages, function(page) {
-                matchCurrentPage = page;
+    // 加载明细数据
+    function loadMatchDetails() {
+        $.ajax({
+            url: `${API_BASE_URL}/details/list`,
+            type: 'GET',
+            success: function(response) {
+<!--                if (response.success) {-->
+<!--                    matchData = response.data;-->
+<!--                    updateMatchTable();-->
+<!--                } else {-->
+<!--                    showError('加载明细数据失败：' + response.message);-->
+<!--                }-->
+<!--            },-->
+                if (response.success) {
+                    // 转换数据格式以匹配前端期望的结构
+                    matchData = response.data.map(item => ({
+                    detailNo: item.flowNo,
+<!--                    status: item.receiptFileName != null ? 'MATCHED' : 'UNMATCHED',-->
+                    matchedData: item
+                }));
                 updateMatchTable();
-            });
-        }
-
-        // 通用分页更新函数
-        function updatePagination(containerId, currentPage, totalPages, onPageChange) {
-            if (totalPages <= 1) {
-                $(`#${containerId}`).empty();
-                return;
+            } else {
+                showError('加载明细数据失败：' + response.message);
             }
-
-            let paginationHtml = '';
-            
-            // 上一页
-            paginationHtml += `<button ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1}, '${containerId}')">上一页</button>`;
-            
-            // 页码
-            for (let i = 1; i <= totalPages; i++) {
-                const isActive = i === currentPage ? 'current-page' : '';
-                paginationHtml += `<button class="${isActive}" onclick="changePage(${i}, '${containerId}')">${i}</button>`;
-            }
-            
-            // 下一页
-            paginationHtml += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1}, '${containerId}')">下一页</button>`;
-            
-            $(`#${containerId}`).html(paginationHtml);
-            
-            // 存储回调函数
-            window[`${containerId}Callback`] = onPageChange;
-        }
-
-        // 页码变更处理
-        function changePage(page, containerId) {
-            const callback = window[`${containerId}Callback`];
-            if (callback) {
-                callback(page);
-            }
-        }
-
-        // 单个回单解析
-        function parseReceipt(fileName) {
-            const row = $(`tr[data-file-name="${fileName}"]`);
-            const button = row.find('button');
-            
-            button.text('解析中...').prop('disabled', true);
-            
-            $.ajax({
-                url: `${API_BASE_URL}/receipts/parse/${encodeURIComponent(fileName)}`,
-                type: 'POST',
-                success: function(response) {
-                    if (response.success) {
-                        // 更新本地数据
-                        const item = receiptData.find(r => r.fileName === fileName);
-                        if (item) {
-                            item.status = 'PARSED';
-                        }
-                        updateReceiptTable();
-                        showSuccess(`回单解析完成: ${fileName}`);
-                    } else {
-                        button.text('解析').prop('disabled', false);
-                        showError('解析失败：' + response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    button.text('解析').prop('disabled', false);
-                    console.error('解析失败:', error);
-                    showError('解析失败，请检查网络连接');
-                }
-            });
-        }
-
-        // 查看回单详情
-        function viewReceipt(fileName) {
-            $.ajax({
-                url: `${API_BASE_URL}/receipts/view/${encodeURIComponent(fileName)}`,
-                type: 'GET',
-                success: function(response) {
-                    if (response.success) {
-                        displayReceiptDetails(response.data);
-                        $('#receiptModal').show();
-                    } else {
-                        showError('获取回单详情失败：' + response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('获取回单详情失败:', error);
-                    showError('获取回单详情失败，请检查网络连接');
-                }
-            });
-        }
-
-        // 手动匹配
-        function manualMatch(detailNo) {
-            if (!confirm(`确定要手动匹配明细 ${detailNo} 吗？`)) {
-                return;
-            }
-            
-            const row = $(`tr[data-detail-no="${detailNo}"]`);
-            const button = row.find('button');
-            
-            button.text('匹配中...').prop('disabled', true);
-            
-            $.ajax({
-                url: `${API_BASE_URL}/match/manual/${encodeURIComponent(detailNo)}`,
-                type: 'POST',
-                success: function(response) {
-                    if (response.success) {
-                        // 更新本地数据
-                        const item = matchData.find(m => m.detailNo === detailNo);
-                        if (item) {
-                            item.status = 'MATCHED';
-                            item.matchedData = response.data; // 保存匹配的数据
-                        }
-                        updateMatchTable();
-                        showSuccess(`手动匹配成功: ${detailNo}`);
-                    } else {
-                        button.text('手动匹配').prop('disabled', false);
-                        showError('匹配失败：' + response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    button.text('手动匹配').prop('disabled', false);
-                    console.error('匹配失败:', error);
-                    showError('匹配失败，请检查网络连接');
-                }
-            });
-        }
-
-        // 查看明细详情
-        function viewDetail(detailNo) {
-            $.ajax({
-                url: `${API_BASE_URL}/details/view/${encodeURIComponent(detailNo)}`,
-                type: 'GET',
-                success: function(response) {
-                    if (response.success) {
-                        displayDetailDetails(response.data);
-                        $('#detailModal').show();
-                    } else {
-                        showError('获取明细详情失败：' + response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('获取明细详情失败:', error);
-                    showError('获取明细详情失败，请检查网络连接');
-                }
-            });
-        }
-
-        // 显示回单详情
-        function displayReceiptDetails(data) {
-            const detailsHtml = `
-                <table class="detail-table">
-                    <tr><th>ID</th><td>${data.id || '-'}</td></tr>
-                    <tr><th>交易日期</th><td>${data.transactionDate || '-'}</td></tr>
-                    <tr><th>交易ID</th><td>${data.transactionId || '-'}</td></tr>
-                    <tr><th>付款账户</th><td>${data.payerAccount || '-'}</td></tr>
-                    <tr><th>收款账户</th><td>${data.receiverAccount || '-'}</td></tr>
-                    <tr><th>付款人姓名</th><td>${data.payerName || '-'}</td></tr>
-                    <tr><th>收款人姓名</th><td>${data.receiverName || '-'}</td></tr>
-                    <tr><th>付款银行</th><td>${data.payerBank || '-'}</td></tr>
-                    <tr><th>收款银行</th><td>${data.receiverBank || '-'}</td></tr>
-                    <tr><th>币种</th><td>${data.currency || '-'}</td></tr>
-                    <tr><th>金额(大写)</th><td>${data.amountWords || '-'}</td></tr>
-                    <tr><th>金额(数字)</th><td>${data.amountNumbers || '-'}</td></tr>
-                    <tr><th>记录ID</th><td>${data.recordId || '-'}</td></tr>
-                    <tr><th>凭证ID</th><td>${data.voucherId || '-'}</td></tr>
-                    <tr><th>银行备注</th><td>${data.bankRemark || '-'}</td></tr>
-                    <tr><th>客户备注</th><td>${data.customerRemark || '-'}</td></tr>
-                    <tr><th>登录ID</th><td>${data.loginId || '-'}</td></tr>
-                    <tr><th>验证码</th><td>${data.verificationCode || '-'}</td></tr>
-                    <tr><th>创建时间</th><td>${data.createdAt || '-'}</td></tr>
-                    <tr><th>银行类型</th><td>${data.bankType || '-'}</td></tr>
-                </table>
-            `;
-            $('#receiptDetails').html(detailsHtml);
-        }
-
-        // 显示明细详情
-        function displayDetailDetails(data) {
-            const detailsHtml = `
-                <table class="detail-table">
-                    <tr><th>ID</th><td>${data.id || '-'}</td></tr>
-                    <tr><th>明细单号</th><td>${data.detailNo || '-'}</td></tr>
-                    <tr><th>交易日期</th><td>${data.transactionDate || '-'}</td></tr>
-                    <tr><th>交易ID</th><td>${data.transactionId || '-'}</td></tr>
-                    <tr><th>付款账户</th><td>${data.payerAccount || '-'}</td></tr>
-                    <tr><th>收款账户</th><td>${data.receiverAccount || '-'}</td></tr>
-                    <tr><th>付款人姓名</th><td>${data.payerName || '-'}</td></tr>
-                    <tr><th>收款人姓名</th><td>${data.receiverName || '-'}</td></tr>
-                    <tr><th>付款银行</th><td>${data.payerBank || '-'}</td></tr>
-                    <tr><th>收款银行</th><td>${data.receiverBank || '-'}</td></tr>
-                    <tr><th>币种</th><td>${data.currency || '-'}</td></tr>
-                    <tr><th>金额(大写)</th><td>${data.amountWords || '-'}</td></tr>
-                    <tr><th>金额(数字)</th><td>${data.amountNumbers || '-'}</td></tr>
-                    <tr><th>记录ID</th><td>${data.recordId || '-'}</td></tr>
-                    <tr><th>凭证ID</th><td>${data.voucherId || '-'}</td></tr>
-                    <tr><th>银行备注</th><td>${data.bankRemark || '-'}</td></tr>
-                    <tr><th>客户备注</th><td>${data.customerRemark || '-'}</td></tr>
-                    <tr><th>登录ID</th><td>${data.loginId || '-'}</td></tr>
-                    <tr><th>验证码</th><td>${data.verificationCode || '-'}</td></tr>
-                    <tr><th>创建时间</th><td>${data.createdAt || '-'}</td></tr>
-                    <tr><th>银行类型</th><td>${data.bankType || '-'}</td></tr>
-                </table>
-            `;
-            $('#detailDetails').html(detailsHtml);
-        }
-
-        // 关闭模态框
-        function closeModal(modalId) {
-            $('#' + modalId).hide();
-        }
-
-        // 点击模态框外部关闭
-        $('.modal').click(function(e) {
-            if (e.target === this) {
-                $(this).hide();
+        },
+            error: function(xhr, status, error) {
+                console.error('加载明细数据失败:', error);
+                showError('加载明细数据失败，请检查网络连接');
             }
         });
+    }
 
-        // 显示成功消息
-        function showSuccess(message) {
-            const alertHtml = `<div class="success-message">${message}</div>`;
-            $('.container').prepend(alertHtml);
-            setTimeout(function() {
-                $('.success-message').fadeOut(function() {
-                    $(this).remove();
-                });
-            }, 3000);
+    // 更新回单表格
+    function updateReceiptTable() {
+        const startIndex = (receiptCurrentPage - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const pageData = receiptData.slice(startIndex, endIndex);
+
+        let tableHtml = '';
+        if (pageData.length === 0) {
+            tableHtml = '<tr><td colspan="4" class="loading">暂无回单文件</td></tr>';
+        } else {
+            pageData.forEach(function(item) {
+                const statusClass = item.status === 'PARSED' ? 'status-success' : 'status-pending';
+                const statusText = item.status === 'PARSED' ? '解析成功' : '待解析';
+                const actionBtn = item.status === 'PARSED'
+                    ? `<button class="btn btn-info" onclick="viewReceipt('${item.fileName}')">查看回单</button>`
+                    : `<button class="btn btn-success" onclick="parseReceipt('${item.fileName}')">解析</button>`;
+
+                tableHtml += `
+                    <tr data-file-name="${item.fileName}">
+                        <td>${item.fileName}</td>
+                        <td><span class="bank-tag">${item.bankName || '未知银行'}</span></td>
+                        <td><span class="status ${statusClass}">${statusText}</span></td>
+                        <td>${actionBtn}</td>
+                    </tr>
+                `;
+            });
         }
 
-        // 显示错误消息
-        function showError(message) {
-            const alertHtml = `<div class="error-message">${message}</div>`;
-            $('.container').prepend(alertHtml);
-            setTimeout(function() {
-                $('.error-message').fadeOut(function() {
-                    $(this).remove();
-                });
-            }, 5000);
+        $('#receiptTableBody').html(tableHtml);
+        updateReceiptPagination();
+    }
+
+    // 更新明细表格
+    function updateMatchTable() {
+        const startIndex = (matchCurrentPage - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const pageData = matchData.slice(startIndex, endIndex);
+
+        let tableHtml = '';
+        if (pageData.length === 0) {
+            tableHtml = '<tr><td colspan="3" class="loading">暂无明细数据</td></tr>';
+        } else {
+            pageData.forEach(function(item) {
+                const statusClass = item.status === 'MATCHED' ? 'status-matched' : 'status-unmatched';
+                const statusText = item.status === 'MATCHED' ? '已匹配' : '未匹配';
+                const actionBtn = item.status === 'MATCHED'
+                    ? `<button class="btn btn-info" onclick="viewDetail('${item.detailNo}')">查看详情</button>`
+                    : `<button class="btn btn-primary" onclick="manualMatch('${item.detailNo}')">手动匹配</button>`;
+
+                tableHtml += `
+                    <tr data-detail-no="${item.detailNo}">
+                        <td>${item.detailNo}</td>
+                        <td><span class="status ${statusClass}">${statusText}</span></td>
+                        <td>${actionBtn}</td>
+                    </tr>
+                `;
+            });
         }
-    </script>
+
+        $('#matchTableBody').html(tableHtml);
+        updateMatchPagination();
+    }
+
+    // 更新回单分页
+    function updateReceiptPagination() {
+        const totalPages = Math.ceil(receiptData.length / pageSize);
+        updatePagination('receiptPagination', receiptCurrentPage, totalPages, function(page) {
+            receiptCurrentPage = page;
+            updateReceiptTable();
+        });
+    }
+
+    // 更新明细分页
+    function updateMatchPagination() {
+        const totalPages = Math.ceil(matchData.length / pageSize);
+        updatePagination('matchPagination', matchCurrentPage, totalPages, function(page) {
+            matchCurrentPage = page;
+            updateMatchTable();
+        });
+    }
+
+    // 通用分页更新函数
+    function updatePagination(containerId, currentPage, totalPages, onPageChange) {
+        if (totalPages <= 1) {
+            $(`#${containerId}`).empty();
+            return;
+        }
+
+        let paginationHtml = '';
+
+        // 上一页
+        paginationHtml += `<button ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1}, '${containerId}')">上一页</button>`;
+
+        // 页码
+        for (let i = 1; i <= totalPages; i++) {
+            const isActive = i === currentPage ? 'current-page' : '';
+            paginationHtml += `<button class="${isActive}" onclick="changePage(${i}, '${containerId}')">${i}</button>`;
+        }
+
+        // 下一页
+        paginationHtml += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1}, '${containerId}')">下一页</button>`;
+
+        $(`#${containerId}`).html(paginationHtml);
+
+        // 存储回调函数
+        window[`${containerId}Callback`] = onPageChange;
+    }
+
+    // 页码变更处理
+    function changePage(page, containerId) {
+        const callback = window[`${containerId}Callback`];
+        if (callback) {
+            callback(page);
+        }
+    }
+
+    // 单个回单解析
+    function parseReceipt(fileName) {
+        const row = $(`tr[data-file-name="${fileName}"]`);
+        const button = row.find('button');
+
+        button.text('解析中...').prop('disabled', true);
+
+        $.ajax({
+            url: `${API_BASE_URL}/receipts/parse/${encodeURIComponent(fileName)}`,
+            type: 'POST',
+            success: function(response) {
+                if (response.success) {
+                    // 更新本地数据
+                    const item = receiptData.find(r => r.fileName === fileName);
+                    if (item) {
+                        item.status = 'PARSED';
+                    }
+                    updateReceiptTable();
+                    showSuccess(`回单解析完成: ${fileName}`);
+                } else {
+                    button.text('解析').prop('disabled', false);
+                    showError('解析失败：' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                button.text('解析').prop('disabled', false);
+                console.error('解析失败:', error);
+                showError('解析失败，请检查网络连接');
+            }
+        });
+    }
+
+    // 查看回单详情
+    function viewReceipt(fileName) {
+        $.ajax({
+            url: `${API_BASE_URL}/receipts/view/${encodeURIComponent(fileName)}`,
+            type: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    displayReceiptDetails(response.data);
+                    $('#receiptModal').show();
+                } else {
+                    showError('获取回单详情失败：' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('获取回单详情失败:', error);
+                showError('获取回单详情失败，请检查网络连接');
+            }
+        });
+    }
+
+    // 手动匹配
+    function manualMatch(detailNo) {
+        if (!confirm(`确定要手动匹配明细 ${detailNo} 吗？`)) {
+            return;
+        }
+
+        const row = $(`tr[data-detail-no="${detailNo}"]`);
+        const button = row.find('button');
+
+        button.text('匹配中...').prop('disabled', true);
+
+        $.ajax({
+            url: `${API_BASE_URL}/match/manual/${encodeURIComponent(detailNo)}`,
+            type: 'POST',
+            success: function(response) {
+                if (response.success) {
+                    // 更新本地数据
+                    const item = matchData.find(m => m.detailNo === detailNo);
+                    if (item) {
+                        item.status = 'MATCHED';
+                        item.matchedData = response.data; // 保存匹配的数据
+                    }
+                    updateMatchTable();
+                    showSuccess(`手动匹配成功: ${detailNo}`);
+                } else {
+                    button.text('手动匹配').prop('disabled', false);
+                    showError('匹配失败：' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                button.text('手动匹配').prop('disabled', false);
+                console.error('匹配失败:', error);
+                showError('匹配失败，请检查网络连接');
+            }
+        });
+    }
+
+    // 查看明细详情
+    function viewDetail(detailNo) {
+        $.ajax({
+            url: `${API_BASE_URL}/details/view/${encodeURIComponent(detailNo)}`,
+            type: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    displayDetailDetails(response.data);
+                    $('#detailModal').show();
+                } else {
+                    showError('获取明细详情失败：' + response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('获取明细详情失败:', error);
+                showError('获取明细详情失败，请检查网络连接');
+            }
+        });
+    }
+
+    // 显示回单详情
+    function displayReceiptDetails(data) {
+        const detailsHtml = `
+            <table class="detail-table">
+                <tr><th>ID</th><td>${data.id || '-'}</td></tr>
+                <tr><th>交易日期</th><td>${data.transactionDate || '-'}</td></tr>
+                <tr><th>交易流水号</th><td>${data.transactionId || '-'}</td></tr>
+                <tr><th>付款人账号</th><td>${data.payerAccount || '-'}</td></tr>
+                <tr><th>收款人账号</th><td>${data.receiverAccount || '-'}</td></tr>
+                <tr><th>付款人姓名</th><td>${data.payerName || '-'}</td></tr>
+                <tr><th>收款人姓名</th><td>${data.receiverName || '-'}</td></tr>
+                <tr><th>付款人开户行</th><td>${data.payerBank || '-'}</td></tr>
+                <tr><th>收款人开户行</th><td>${data.receiverBank || '-'}</td></tr>
+                <tr><th>币种</th><td>${data.currency || '-'}</td></tr>
+                <tr><th>金额(大写)</th><td>${data.amountWords || '-'}</td></tr>
+                <tr><th>金额(数字)</th><td>${data.amountNumbers || '-'}</td></tr>
+                <tr><th>记账流水号</th><td>${data.recordId || '-'}</td></tr>
+                <tr><th>电子凭证号</th><td>${data.voucherId || '-'}</td></tr>
+                <tr><th>银行备注</th><td>${data.bankRemark || '-'}</td></tr>
+                <tr><th>客户备注</th><td>${data.customerRemark || '-'}</td></tr>
+                <tr><th>登录号</th><td>${data.loginId || '-'}</td></tr>
+                <tr><th>客户验证码</th><td>${data.verificationCode || '-'}</td></tr>
+                <tr><th>创建时间</th><td>${data.createdAt || '-'}</td></tr>
+                <tr><th>银行类型</th><td>${data.bankType || '-'}</td></tr>
+            </table>
+        `;
+        $('#receiptDetails').html(detailsHtml);
+    }
+
+    // 显示明细详情
+    function displayDetailDetails(data) {
+        const detailsHtml = `
+            <table class="detail-table">
+                <tr><th>ID</th><td>${data.id || '-'}</td></tr>
+                <tr><th>明细订单业务流水号</th><td>${data.flowNo || '-'}</td></tr>
+                <tr><th>订单号</th><td>${data.orderNo || '-'}</td></tr>
+                <tr><th>交易日期</th><td>${data.tradeTime || '-'}</td></tr>
+                <tr><th>付款人账户</th><td>${data.payAccNo || '-'}</td></tr>
+                <tr><th>付款人账户名称</th><td>${data.payAccName || '-'}</td></tr>
+                <tr><th>付款账户开户行</th><td>${data. || '-'}</td></tr>
+                <tr><th>收款人账户</th><td>${data.rcvAccNo || '-'}</td></tr>
+                <tr><th>收款人账户名称</th><td>${data.rcvAccName ||trBankName'-'}</td></tr>
+                <tr><th>收款账户开户行</th><td>${data.oppBankName || '-'}</td></tr>
+                <tr><th>币种</th><td>${data.currency || '-'}</td></tr>
+                <tr><th>金额(数字)</th><td>${data.amount || '-'}</td></tr>
+                <tr><th>回单文件名</th><td>${data.receiptFileName || '-'}</td></tr>
+<!--                <tr><th>记录ID</th><td>${data.recordId || '-'}</td></tr>-->
+<!--                <tr><th>凭证ID</th><td>${data.voucherId || '-'}</td></tr>-->
+<!--                <tr><th>银行备注</th><td>${data.bankRemark || '-'}</td></tr>-->
+<!--                <tr><th>客户备注</th><td>${data.customerRemark || '-'}</td></tr>-->
+<!--                <tr><th>登录ID</th><td>${data.loginId || '-'}</td></tr>-->
+<!--                <tr><th>验证码</th><td>${data.verificationCode || '-'}</td></tr>-->
+<!--                <tr><th>创建时间</th><td>${data.createdAt || '-'}</td></tr>-->
+<!--                <tr><th>银行类型</th><td>${data.bankType || '-'}</td></tr>-->
+            </table>
+        `;
+        $('#detailDetails').html(detailsHtml);
+    }
+
+    // 关闭模态框
+    function closeModal(modalId) {
+        $('#' + modalId).hide();
+    }
+
+    // 点击模态框外部关闭
+    $('.modal').click(function(e) {
+        if (e.target === this) {
+            $(this).hide();
+        }
+    });
+
+    // 显示成功消息
+    function showSuccess(message) {
+        const alertHtml = `<div class="success-message">${message}</div>`;
+        $('.container').prepend(alertHtml);
+        setTimeout(function() {
+            $('.success-message').fadeOut(function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+
+    // 显示错误消息
+    function showError(message) {
+        const alertHtml = `<div class="error-message">${message}</div>`;
+        $('.container').prepend(alertHtml);
+        setTimeout(function() {
+            $('.error-message').fadeOut(function() {
+                $(this).remove();
+            });
+        }, 5000);
+    }
+</script>
 </body>
 </html>
