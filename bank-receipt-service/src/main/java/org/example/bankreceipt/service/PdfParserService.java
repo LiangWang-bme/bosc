@@ -1,6 +1,5 @@
 package org.example.bankreceipt.service;
 
-
 import org.example.bankreceipt.model.BankReceipt;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
@@ -10,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -20,9 +18,6 @@ import java.util.regex.Pattern;
 public class PdfParserService {
 
     public BankReceipt parsePdfToReceipt(String filePath) throws IOException {
-//        Map<String, String> extractedFields = parseBankReceipt(filePath);
-//        return mapToBankReceipt(extractedFields);
-
         Map<String, String> extractedFields = parseBankReceipt(filePath);
         BankReceipt receipt = mapToBankReceipt(extractedFields);
 
@@ -53,6 +48,9 @@ public class PdfParserService {
                 case "SRCB":
                     parseSRCB(text, result);
                     break;
+                case "CITIC":
+                    parseCITIC(text, result);
+                    break;
                 // 可以添加其他银行的解析方法
                 default:
                     parseDefault(text, result);
@@ -67,6 +65,8 @@ public class PdfParserService {
             return "SRCB";
         } else if (text.contains("民生银行") || text.contains("CMBC")) {
             return "CMBC";
+        }else if (text.contains("中信银行")) {
+            return "CITIC";
         }
         return "UNKNOWN";
     }
@@ -121,6 +121,30 @@ public class PdfParserService {
         extractFields(text, result, fieldPatterns);
     }
 
+    private void parseCITIC(String text, Map<String, String> result) {
+        // 中信银行解析规则
+        Map<String, Pattern> fieldPatterns = new HashMap<>();
+        fieldPatterns.put("交易日期", Pattern.compile("交易日期：(\\d{8})"));
+        fieldPatterns.put("交易流水号", Pattern.compile("核心流水号：([^\\s]+)"));
+        fieldPatterns.put("付款人账号", Pattern.compile("账号\\s*(\\d+)"));
+        fieldPatterns.put("付款人名称", Pattern.compile("户名[\\s\\n]*([^\\n\\s]+)(?:\\s|\\n)*开户行名"));
+        fieldPatterns.put("付款人开户行", Pattern.compile("开户行名\\s*([^\\n]+)"));
+        fieldPatterns.put("付款人开户行号", Pattern.compile("开户行号\\s*(\\d+)"));
+
+        // 解析金额
+        Pattern amountPattern = Pattern.compile("币种及金额：人民币([^R]+)RMB([\\d.]+)");
+        Matcher amountMatcher = amountPattern.matcher(text);
+        if (amountMatcher.find()) {
+            result.put("金额(大写)", amountMatcher.group(1).trim());
+            result.put("金额(小写)", amountMatcher.group(2));
+        }
+
+        fieldPatterns.put("币种", Pattern.compile("币种及金额[：:]\\s*(人民币|美元|欧元|港币)"));
+        fieldPatterns.put("记账流水号", Pattern.compile("核心流水号：([^\\s]+)"));
+
+        extractFields(text, result, fieldPatterns);
+    }
+
     private void parseDefault(String text, Map<String, String> result) {
         // 默认解析规则，适用于未知银行格式
         // 可以尝试一些通用的解析规则
@@ -135,21 +159,29 @@ public class PdfParserService {
         }
     }
 
-
-
     private BankReceipt mapToBankReceipt(Map<String, String> fields) {
         BankReceipt receipt = new BankReceipt();
 
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            SimpleDateFormat srcbDateFormat = new SimpleDateFormat("yyyy年MM月dd日");
-
             receipt.setBankType(fields.get("bankType"));
 
-            // 根据银行类型处理日期格式
-            if ("SRCB".equals(fields.get("bankType"))) {
-                receipt.setTransactionDate(srcbDateFormat.parse(fields.get("交易日期")));
-            } else {
+            // 处理不同银行的日期格式
+            SimpleDateFormat dateFormat;
+            switch (fields.get("bankType")) {
+                case "CMBC":
+                    dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    break;
+                case "SRCB":
+                    dateFormat = new SimpleDateFormat("yyyy年MM月dd日");
+                    break;
+                case "CITIC":
+                    dateFormat = new SimpleDateFormat("yyyyMMdd");
+                    break;
+                default:
+                    dateFormat = new SimpleDateFormat("yyyyMMdd");
+            }
+
+            if (fields.containsKey("交易日期")) {
                 receipt.setTransactionDate(dateFormat.parse(fields.get("交易日期")));
             }
 
@@ -174,11 +206,11 @@ public class PdfParserService {
             receipt.setCustomerRemark(fields.get("客户附言"));
             receipt.setLoginId(fields.get("登录号"));
             receipt.setVerificationCode(fields.get("客户验证码"));
+
         } catch (Exception e) {
             throw new RuntimeException("Error mapping fields to BankReceipt", e);
         }
 
         return receipt;
     }
-
 }

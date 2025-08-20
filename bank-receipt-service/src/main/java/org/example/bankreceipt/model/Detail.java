@@ -145,4 +145,7 @@ public class Detail {
 
     @Column(name = "UPDATE_TIME")
     private Date updateTime;
+
+    @Column(name = "BANK_CODE")
+    private String bankCode;
 }
